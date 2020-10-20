@@ -1,6 +1,12 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
-  class Syft::Test::Product
-    attr_accessor :code, :name, :price, :currency
+  module Syft
+    module Test
+      class Product
+        attr_accessor :code, :name, :price, :currency
+      end
+    end
   end
 
   factory :product, class: Syft::Test::Product do

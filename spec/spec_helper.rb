@@ -97,10 +97,5 @@ RSpec.configure do |config|
   #   # test failures related to randomization by passing the same `--seed` value
   #   # as the one that triggered the failure.
   #   Kernel.srand config.seed
-  module Syft
-    module Test
-
-    end
-  end
   Dir[File.absolute_path(File.join('.', 'support', '**', '*.rb'), __dir__)].sort.each { |f| require f }
 end

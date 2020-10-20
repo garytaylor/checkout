@@ -5,7 +5,6 @@ require 'checkout'
 RSpec.describe Checkout do
   subject(:checkout) { described_class.new(promotional_rules) }
 
-
   describe '#scan' do
     let(:promotional_rules) { [] }
     let(:item) { build(:product, :kids_t_shirt) }
@@ -33,5 +32,4 @@ RSpec.describe Checkout do
 
     end
   end
-
 end
