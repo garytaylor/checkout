@@ -4,80 +4,83 @@ require 'spec_helper'
 require 'promotions/calculator_service'
 RSpec.describe Promotions::CalculatorService do
   describe '.call' do
-    let(:below_60_products) do
+    let(:products) do
       [
         build(:product, :lavender_heart),
-        build(:product, :personalised_cufflinks)
+        build(:product, :lavender_heart),
+        build(:product, :personalised_cufflinks),
+        build(:product, :kids_t_shirt)
       ]
     end
-    let(:exactly_60_products) do
-      [
-        build(:product, :flat_cap),
-        build(:product, :personalised_cufflinks)
-      ]
-    end
-    let(:over_60_products) do
-      [
-        build(:product, :kids_t_shirt),
-        build(:product, :personalised_cufflinks)
-      ]
-    end
+
     context 'with no promotional rules and nothing already applied' do
       subject(:checkout) do
-        described_class.call(products: below_60_products, rules: [], discounts_applied: discounts_applied)
+        described_class.call(products: products, rules: [], discounts_applied: discounts_applied)
       end
 
-      let(:applied) { [] }
       let(:discounts_applied) { [] }
 
-      it 'should not modify discounts_applied' do
-        expect { subject }.not_to change(discounts_applied, :length)
+      it 'runs without error' do
+        checkout
       end
     end
 
-    context 'with over 60 promotional rules, nothing already applied and products below 60' do
+    context 'with 1 product rule and 1 order rule using mocks' do
       subject(:checkout) do
-        described_class.call(products: below_60_products, rules: rules, discounts_applied: discounts_applied)
+        described_class.call products: products,
+                             rules: [order_rule, product_rule],
+                             discounts_applied: discounts_applied
       end
 
-      let(:rules) { [build(:order_total_promotion, :ten_percent_over_60)] }
-      let(:applied) { [] }
+      let(:order_rule) do
+        attrs = attributes_for(:order_total_promotion, :ten_percent_over_60)
+        instance_spy('::Promotions::OrderTotalPromotion', attrs.merge(product_level?: false))
+      end
+      let(:product_rule) do
+        attrs = attributes_for(:product_quantity_promotion, :fixed_price_two_lavender_hearts)
+        instance_spy '::Promotions::ProductQuantityPromotion', attrs.merge(product_level?: true)
+      end
       let(:discounts_applied) { [] }
 
-      it 'should not modify discounts_applied' do
-        expect { subject }.not_to change(discounts_applied, :length)
+      before do
+        allow(product_rule).to receive(:apply).with(anything) do |discounts_applied:, **|
+          discounts_applied << build(:discount_applied, amount: product_rule.discount_amount, rule: product_rule)
+        end
+      end
+
+      it 'calls apply on the product rule correctly' do
+        checkout
+        expect(product_rule).to have_received(:apply)
+          .with(products: products, total: products.sum(&:price), discounts_applied: discounts_applied)
+      end
+
+      it 'calls apply on the order rule correctly with product discount applied first' do
+        expected_total = products.sum(&:price) - product_rule.discount_amount
+        checkout
+        expect(order_rule).to have_received(:apply)
+          .with(products: products, total: expected_total, discounts_applied: discounts_applied)
       end
     end
 
-    context 'with over 60 promotional rules, nothing already applied and products exactly 60' do
+    context 'with 1 product rule and 1 order rule without mocks' do
       subject(:checkout) do
-        described_class.call(products: exactly_60_products, rules: rules, discounts_applied: discounts_applied)
+        described_class.call products: products,
+                             rules: rules,
+                             discounts_applied: discounts_applied
       end
 
-      let(:rules) { [build(:order_total_promotion, :ten_percent_over_60)] }
-      let(:applied) { [] }
+      let(:rules) do
+        [build(:order_total_promotion, :ten_percent_over_60),
+         build(:product_quantity_promotion, :fixed_price_two_lavender_hearts)]
+      end
       let(:discounts_applied) { [] }
 
-      it 'should not modify discounts_applied' do
-        expect { subject }.not_to change(discounts_applied, :length)
-      end
-    end
-
-    context 'with over 60 promotional rules, nothing already applied and products over 60' do
-      subject(:checkout) do
-        described_class.call(products: products, rules: rules, discounts_applied: discounts_applied)
-      end
-
-      let(:products) { over_60_products }
-      let(:rules) { [build(:order_total_promotion, :ten_percent_over_60)] }
-      let(:applied) { [] }
-      let(:discounts_applied) { [] }
-
-      it 'should add a discount to be applied' do
-        expected_discount = products.sum(&:price) * 0.1
-        subject
-        expect(discounts_applied).to contain_exactly an_object_having_attributes amount: expected_discount,
-                                                                                 rule: rules.first
+      it 'calls apply on the product rule, the discounts applied subtracted before the call to the order rule' do
+        expected_product_discount = 150
+        order_total_before_discount = products.sum(&:price) - expected_product_discount
+        expected_order_discount = order_total_before_discount * 0.1
+        checkout
+        expect(discounts_applied.sum(&:amount)).to eq expected_product_discount + expected_order_discount
       end
     end
   end

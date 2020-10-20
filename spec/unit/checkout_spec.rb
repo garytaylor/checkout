@@ -24,6 +24,7 @@ RSpec.describe Checkout do
           build(:product, :personalised_cufflinks)
         ]
       end
+
       before { basket.each { |item| checkout.scan(item) } }
 
       it 'equals the price of the item scanned' do
@@ -39,6 +40,7 @@ RSpec.describe Checkout do
           build(:product, :personalised_cufflinks)
         ]
       end
+
       before { basket.each { |item| checkout.scan(item) } }
 
       it 'equals the price of the items scanned' do
@@ -54,6 +56,7 @@ RSpec.describe Checkout do
           build(:product, :personalised_cufflinks)
         ]
       end
+
       before { basket.each { |item| checkout.scan(item) } }
 
       it 'equals the price of the items scanned' do
@@ -69,6 +72,7 @@ RSpec.describe Checkout do
           build(:product, :personalised_cufflinks)
         ]
       end
+
       before { basket.each { |item| checkout.scan(item) } }
 
       it 'equals the price of the items scanned minus the 10% discount (rounded to nearest)' do
@@ -76,12 +80,6 @@ RSpec.describe Checkout do
         expected_discount = price_before_discount * 0.1
         expect(checkout.total).to eq((price_before_discount - expected_discount).round)
       end
-    end
-
-    context 'with price drop for quantity of 2 lavender hearts' do
-    end
-
-    context 'with 10 percent off orders over 60 and price drop for quantity of 2 lavender hearts' do
     end
   end
 end

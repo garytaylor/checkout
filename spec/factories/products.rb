@@ -1,15 +1,8 @@
 # frozen_string_literal: true
 
+require 'product'
 FactoryBot.define do
-  module Syft
-    module Test
-      class Product
-        attr_accessor :code, :name, :price, :currency
-      end
-    end
-  end
-
-  factory :product, class: Syft::Test::Product do
+  factory :product do
     trait :lavender_heart do
       code     { "001" }
       name     { "Lavender heart" }

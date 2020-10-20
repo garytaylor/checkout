@@ -21,10 +21,6 @@ module Promotions
       false
     end
 
-    def order_level?
-      true
-    end
-
     private
 
     attr_reader :discount_applied_class

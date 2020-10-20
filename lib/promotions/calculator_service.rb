@@ -12,14 +12,14 @@ module Promotions
       product_rules_to_apply, order_rules_to_apply = rules_to_apply.partition(&:product_level?)
 
       total = products.sum(&:price)
-      method_name(products, product_rules_to_apply, discounts_applied, total)
+      apply_rules(products, product_rules_to_apply, discounts_applied, total)
 
       total -= discounts_applied.sum(&:amount)
-      method_name(products, order_rules_to_apply, discounts_applied, total)
+      apply_rules(products, order_rules_to_apply, discounts_applied, total)
     end
 
-    def self.method_name(products, product_rules_to_apply, discounts_applied, total)
-      product_rules_to_apply.each do |rule|
+    def self.apply_rules(products, rules_to_apply, discounts_applied, total)
+      rules_to_apply.each do |rule|
         rule.apply(products: products, total: total, discounts_applied: discounts_applied)
       end
     end
