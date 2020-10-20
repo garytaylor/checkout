@@ -12,4 +12,4 @@ inherit_from: .rubocop_todo.yml
 # See https://docs.rubocop.org/rubocop/configuration
 Metrics/BlockLength:
   Exclude:
-    - spec/factories/**/*
+    - spec/**/*

@@ -11,11 +11,18 @@ module Promotions
       @discount_applied_class = discount_applied_class
     end
 
-    def apply(products:, discounts_applied:)
-      order_total = products.sum(&:price)
-      return if order_total <= minimum_value
+    def apply(discounts_applied:, total:, **)
+      return if total <= minimum_value
 
-      apply_discount(order_total, discounts_applied)
+      apply_discount(total, discounts_applied)
+    end
+
+    def product_level?
+      false
+    end
+
+    def order_level?
+      true
     end
 
     private
