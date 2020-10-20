@@ -17,7 +17,7 @@ FactoryBot.define do
       currency { 'GBP' }
     end
 
-    trait :personalised_cuflinks do
+    trait :personalised_cufflinks do
       code     { "002" }
       name     { "Personalised cufflinks" }
       price    { 4500 }
@@ -28,6 +28,13 @@ FactoryBot.define do
       code     { "003" }
       name     { "Kids T-shirt" }
       price    { 1995 }
+      currency { 'GBP' }
+    end
+
+    trait :flat_cap do
+      code     { "004" }
+      name     { "A flat cap to make the amount up to 60" }
+      price    { 1500 }
       currency { 'GBP' }
     end
   end
