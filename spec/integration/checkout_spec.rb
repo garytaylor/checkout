@@ -2,8 +2,8 @@
 
 require 'spec_helper'
 require 'checkout'
-RSpec.describe Checkout do
-  subject(:checkout) { described_class.new(promotional_rules) }
+RSpec.describe 'Checkout integration' do
+  subject(:checkout) { Checkout.new(promotional_rules) }
 
   before { basket.each { |item| checkout.scan(item) } }
 
